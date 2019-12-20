@@ -25,6 +25,41 @@ pub fn run(config:Config) -> Result<(), Box< dyn Error>>
     let mut file = File::open(config.filename)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents).expect("Failed");
-    println!{"{}", contents};
+
+    for line in search(&config.query, &contents)
+        {
+            println!("{}", line);
+        }
+
     return Ok(());
+}
+
+#[cfg(test)]
+mod test{
+    use super::*;
+    #[test]
+    fn one_result(){
+        let query = "duct";
+        let contents = "\n
+Rust
+safe,fast,productive.
+Pick Three";
+        assert_eq!(
+        vec!["safe,fast,productive."], search(query, contents));
+    }
+}
+
+pub fn search<'a>(query:&str, contents:&'a str) -> Vec<&'a str>
+{
+    let mut results = Vec::new();
+
+    for line in contents.lines()
+        {
+            if line.contains(query)
+            {
+                results.push(line);
+            }
+        }
+
+    return results;
 }

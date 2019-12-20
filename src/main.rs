@@ -2,6 +2,7 @@ use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use std::process;
+use std::error::Error;
 
 fn main()
 {
@@ -13,10 +14,19 @@ fn main()
     println!("Searching for {}", config.query);
     println!("In File {}", config.filename);
 
-    let mut file = File::open(config.filename).expect("File Not Found");
+    run(config).unwrap_or_else(|err|{
+        println!("Application Error {}: ", err);
+        process::exit(1);
+    });
+}
+
+fn run(config:Config) -> Result<(), Box< dyn Error>>
+{
+    let mut file = File::open(config.filename)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents).expect("Failed");
     println!{"{}", contents};
+    return Ok(());
 }
 
 struct Config
